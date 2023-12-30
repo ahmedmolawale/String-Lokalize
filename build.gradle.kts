@@ -13,6 +13,8 @@ repositories {
 
 dependencies {
     implementation("org.apache.poi:poi-ooxml:5.2.5")
+    testImplementation("com.google.truth:truth:1.2.0")
+    testImplementation("io.mockk:mockk:1.12.4")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
