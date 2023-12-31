@@ -99,7 +99,7 @@ class SpreadsheetProcessorTest {
     @Test
     fun `GIVEN workbook with invalid language code column WHEN execute() is called THEN returns appropriate error`() {
         val language = "123"
-        val workbook: Workbook = createWorkbook(language = "123")
+        val workbook: Workbook = createWorkbook(language = language)
         every { fileHelper.getFileWorkbook(filePath, any()) } returns workbook
 
         val result = sut.execute(filePath, locationToSaveOutput)
