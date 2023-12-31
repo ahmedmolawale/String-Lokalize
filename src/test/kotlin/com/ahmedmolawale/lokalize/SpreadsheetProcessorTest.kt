@@ -1,10 +1,14 @@
 package com.ahmedmolawale.lokalize
 
 import com.ahmedmolawale.lokalize.states.FileProcessState
+import com.ahmedmolawale.lokalize.utils.FileHelper
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.ss.usermodel.Workbook
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -22,7 +26,6 @@ class SpreadsheetProcessorTest {
         every { fileHelper.isDirectory(locationToSaveOutput) } returns true
         every { fileHelper.getFileExtension(filePath) } returns "xlsx"
     }
-
 
     @Test
     fun `GIVEN empty spreadsheet file name WHEN execute() is called THEN return Error State`() {
@@ -67,6 +70,87 @@ class SpreadsheetProcessorTest {
         assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
         result as FileProcessState.Error
         assertThat(result.message).isEqualTo(INVALID_SPREADSHEET)
+    }
+
+    @Test
+    fun `GIVEN workbook with invalid key cell WHEN execute() is called THEN returns appropriate error`() {
+        val workbook: Workbook = createWorkbook("invalid_key")
+        every { fileHelper.getFileWorkbook(filePath, any()) } returns workbook
+
+        val result = sut.execute(filePath, locationToSaveOutput)
+
+        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
+        result as FileProcessState.Error
+        assertThat(result.message).isEqualTo(INVALID_KEY_ON_SPREADSHEET)
+    }
+
+    @Test
+    fun `GIVEN workbook with no language column WHEN execute() is called THEN returns appropriate error`() {
+        val workbook: Workbook = createWorkbook(isLanguageAvailable = false)
+        every { fileHelper.getFileWorkbook(filePath, any()) } returns workbook
+
+        val result = sut.execute(filePath, locationToSaveOutput)
+
+        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
+        result as FileProcessState.Error
+        assertThat(result.message).isEqualTo(NO_LANGUAGE_COLUMN)
+    }
+
+    @Test
+    fun `GIVEN workbook with invalid language code column WHEN execute() is called THEN returns appropriate error`() {
+        val language = "123"
+        val workbook: Workbook = createWorkbook(language = "123")
+        every { fileHelper.getFileWorkbook(filePath, any()) } returns workbook
+
+        val result = sut.execute(filePath, locationToSaveOutput)
+
+        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
+        result as FileProcessState.Error
+        val expected = String.format(INVALID_LANGUAGE_COLUMN, language, 2)
+        assertThat(result.message).isEqualTo(expected)
+    }
+
+    @Test
+    fun `GIVEN workbook with valid data WHEN execute() is called THEN returns correct data`() {
+        val workbook: Workbook = createWorkbook()
+        every { fileHelper.getFileWorkbook(filePath, any()) } returns workbook
+
+        val result = sut.execute(filePath, locationToSaveOutput)
+
+        assertThat(result).isInstanceOf(FileProcessState.Success::class.java)
+        result as FileProcessState.Success
+        val expected = hashMapOf(
+            "en" to StringBuilder().apply {
+                append(
+                    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                            "<resources>\n"
+                )
+                append("<string name=\"config_name\">olawale</string>\n")
+                append("</resources>")
+            }
+        )
+        assertThat(result.data.keys.size).isEqualTo(expected.keys.size)
+        assertThat(result.data.keys.first()).isEqualTo(expected.keys.first())
+        assertThat(result.data.values.first().toString()).isEqualTo(expected.values.first().toString())
+    }
+
+    private fun createWorkbook(
+        headerRowKeyName: String = "key",
+        language: String = "en",
+        isLanguageAvailable: Boolean = true
+    ): Workbook {
+        val workbook: Workbook = HSSFWorkbook()
+        val sheet: Sheet = workbook.createSheet("data")
+        sheet.createRow(0).apply {//header row
+            createCell(0).setCellValue(headerRowKeyName)
+            if (isLanguageAvailable)
+                createCell(1).setCellValue(language)
+        }
+        sheet.createRow(1).apply {//key value
+            createCell(0).setCellValue("config_name")
+            createCell(1).setCellValue("olawale")
+        }
+        return workbook
     }
 
     @After
