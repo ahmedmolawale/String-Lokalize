@@ -32,7 +32,7 @@ class XMLProcessor(
         return try {
             processDocument(fileHelper.getXMLFileDocument(filePath))
         } catch (e: Exception) {
-            XMLProcessState.Error(INVALID_SPREADSHEET)
+            XMLProcessState.Error(INVALID_XML)
         }
     }
 

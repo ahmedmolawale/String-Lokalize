@@ -1,38 +1,14 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <actions>
-        <!--        <group-->
-        <!--                id="demoActionGroup"-->
-        <!--                description="Demo Action group">-->
-        <action
-                class="com.ahmedmolawale.lokalize.DemoAction"
-                text="Demo Action"
-                id="com.ahmedmolawale.lokalize.demoactionid"
-                description="First demo example"
-                icon="AllIcons.Actions.Diff">
-            <add-to-group group-id="HelpMenu" anchor="first"/>
-        </action>
-
-        <action
-                class="com.ahmedmolawale.lokalize.DemoAction"
-                text="Demo Action File"
-                id="com.ahmedmolawale.lokalize.demoactionidfile"
-                description="First demo example File"
-                icon="AllIcons.Actions.AddFile">
-            <add-to-group group-id="FileMenu" anchor="first"/>
-        </action>
-        <!--        </group>-->
-
-    </actions>
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
     <id>com.ahmedmolawale.lokalize</id>
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>Lokalize</name>
+    <name>String Lokalize</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="support@ahmedmolawale.com" url="https://www.yourcompany.com">ahmedmolawale</vendor>
+    <vendor email="ahmedmolawale@gmail.com" url="https://github.com/ahmedmolawale">String Lokalize</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
@@ -46,9 +22,7 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.ahmedmolawale.lokalize.DemoToolWindow" id="ToolWindow Demo" icon="AllIcons.Actions.Diff" anchor="right"/>
         <toolWindow factoryClass="com.ahmedmolawale.lokalize.AppToolWindow" id="Lokalize Demo" icon="AllIcons.Actions.ArrowExpand" anchor="right"/>
     </extensions>
-
 
 </idea-plugin>
