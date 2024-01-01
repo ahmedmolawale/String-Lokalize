@@ -30,8 +30,7 @@ class XMLProcessor(
             return XMLProcessState.Error(INVALID_XML_FILE_FORMAT)
         }
         return try {
-            val document = fileHelper.getXMLFileDocument(filePath)
-            processDocument(document)
+            processDocument(fileHelper.getXMLFileDocument(filePath))
         } catch (e: Exception) {
             XMLProcessState.Error(INVALID_SPREADSHEET)
         }
