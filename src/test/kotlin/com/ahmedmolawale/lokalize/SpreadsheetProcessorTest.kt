@@ -1,7 +1,7 @@
 package com.ahmedmolawale.lokalize
 
-import com.ahmedmolawale.lokalize.states.FileProcessState
-import com.ahmedmolawale.lokalize.utils.FileHelper
+import com.ahmedmolawale.lokalize.states.SpreadsheetProcessState
+import com.ahmedmolawale.lokalize.utils.*
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -33,8 +33,8 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
         assertThat(result.message).isEqualTo(NO_FILE_SELECTED)
     }
 
@@ -45,8 +45,8 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
         assertThat(result.message).isEqualTo(NO_VALID_DIRECTORY_SELECTED)
     }
 
@@ -56,9 +56,9 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
-        assertThat(result.message).isEqualTo(INVALID_FILE_FORMAT)
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
+        assertThat(result.message).isEqualTo(INVALID_SPREADSHEET_FILE_FORMAT)
     }
 
     @Test
@@ -67,8 +67,8 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
         assertThat(result.message).isEqualTo(INVALID_SPREADSHEET)
     }
 
@@ -79,8 +79,8 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
         assertThat(result.message).isEqualTo(INVALID_KEY_ON_SPREADSHEET)
     }
 
@@ -91,9 +91,9 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
-        assertThat(result.message).isEqualTo(NO_LANGUAGE_COLUMN)
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
+        assertThat(result.message).isEqualTo(NO_LANGUAGE_COLUMN_ON_SPREADSHEET)
     }
 
     @Test
@@ -104,9 +104,9 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Error::class.java)
-        result as FileProcessState.Error
-        val expected = String.format(INVALID_LANGUAGE_COLUMN, language, 2)
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Error::class.java)
+        result as SpreadsheetProcessState.Error
+        val expected = String.format(INVALID_LANGUAGE_COLUMN_ON_SPREADSHEET, language, 2)
         assertThat(result.message).isEqualTo(expected)
     }
 
@@ -117,8 +117,8 @@ class SpreadsheetProcessorTest {
 
         val result = sut.execute(filePath, locationToSaveOutput)
 
-        assertThat(result).isInstanceOf(FileProcessState.Success::class.java)
-        result as FileProcessState.Success
+        assertThat(result).isInstanceOf(SpreadsheetProcessState.Success::class.java)
+        result as SpreadsheetProcessState.Success
         val expected = hashMapOf(
             "en" to StringBuilder().apply {
                 append(

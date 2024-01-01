@@ -1,24 +1,10 @@
 package com.ahmedmolawale.lokalize
 
 
-import com.ahmedmolawale.lokalize.states.FileProcessState
-import com.ahmedmolawale.lokalize.utils.FileHelper
-import com.ahmedmolawale.lokalize.utils.androidSupportedLocales
-import com.ahmedmolawale.lokalize.utils.isBlankOrEmpty
+import com.ahmedmolawale.lokalize.states.SpreadsheetProcessState
+import com.ahmedmolawale.lokalize.utils.*
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
-
-const val NO_FILE_SELECTED = "Please select a file."
-const val NO_VALID_DIRECTORY_SELECTED = "Please select a valid directory to save the output."
-const val INVALID_FILE_FORMAT = "Only .xls and .xlsx files are allowed."
-const val INVALID_SPREADSHEET = "Please select a valid spreadsheet file."
-const val INVALID_KEY_ON_SPREADSHEET = "The first column in the first row must be named \"key\".\n" +
-        "Please check the template file for reference."
-const val NO_LANGUAGE_COLUMN = "The spreadsheet must have at least one language column." +
-        "\nPlease check the template file for reference."
-const val INVALID_LANGUAGE_COLUMN = "The language with code %s in column %d is " +
-        "not supported to be used as an Android resource locale.\n" +
-        "If you think this should be allowed. Please open an issue on the repository."
 
 
 private const val SHEET_INDEX = 0
@@ -35,27 +21,27 @@ class SpreadsheetProcessor(
     private val fileHelper: FileHelper
 ) {
 
-    fun execute(filePath: String, locationToSaveOutput: String): FileProcessState {
+    fun execute(filePath: String, locationToSaveOutput: String): SpreadsheetProcessState {
         if (filePath.isBlankOrEmpty()) {
-            return FileProcessState.Error(NO_FILE_SELECTED)
+            return SpreadsheetProcessState.Error(NO_FILE_SELECTED)
         }
         if (locationToSaveOutput.isBlankOrEmpty() || !fileHelper.isDirectory(locationToSaveOutput)) {
-            return FileProcessState.Error(NO_VALID_DIRECTORY_SELECTED)
+            return SpreadsheetProcessState.Error(NO_VALID_DIRECTORY_SELECTED)
         }
 
         val fileExtension = fileHelper.getFileExtension(filePath)
         if (fileExtension != EXCEL_FILE_TYPE && fileExtension != X_EXCEL_FILE_TYPE) {
-            return FileProcessState.Error(INVALID_FILE_FORMAT)
+            return SpreadsheetProcessState.Error(INVALID_SPREADSHEET_FILE_FORMAT)
         }
         val xExcelType = fileExtension == X_EXCEL_FILE_TYPE
         return try {
             processWorkbook(fileHelper.getFileWorkbook(filePath, xExcelType))
         } catch (e: Exception) {
-            FileProcessState.Error(INVALID_SPREADSHEET)
+            SpreadsheetProcessState.Error(INVALID_SPREADSHEET)
         }
     }
 
-    private fun processWorkbook(workbook: Workbook): FileProcessState {
+    private fun processWorkbook(workbook: Workbook): SpreadsheetProcessState {
         val sheet: Sheet = workbook.getSheetAt(SHEET_INDEX)
         val firstRowNum = sheet.firstRowNum
         val lastRowNum = sheet.lastRowNum
@@ -66,7 +52,7 @@ class SpreadsheetProcessor(
         val firstCell = firstRow.getCell(firstCellNum.toInt())
         val stringCellValue = firstCell.stringCellValue.lowercase()
         if (stringCellValue != KEY_NAME) {
-            return FileProcessState.Error(INVALID_KEY_ON_SPREADSHEET)
+            return SpreadsheetProcessState.Error(INVALID_KEY_ON_SPREADSHEET)
         }
 
         //save all the languages available in the spreadsheet
@@ -75,14 +61,14 @@ class SpreadsheetProcessor(
             val cell = firstRow.getCell(i) ?: break
             val cellValue = cell.stringCellValue
             if (!androidSupportedLocales.contains(cellValue)) {
-                return FileProcessState.Error(
-                    String.format(INVALID_LANGUAGE_COLUMN, cellValue, i + 1)
+                return SpreadsheetProcessState.Error(
+                    String.format(INVALID_LANGUAGE_COLUMN_ON_SPREADSHEET, cellValue, i + 1)
                 )
             }
             languages.add(cellValue)
         }
         if (languages.isEmpty()) {
-            return FileProcessState.Error(NO_LANGUAGE_COLUMN)
+            return SpreadsheetProcessState.Error(NO_LANGUAGE_COLUMN_ON_SPREADSHEET)
         }
         return createResources(languages, firstRowNum, lastRowNum, sheet)
     }
@@ -92,7 +78,7 @@ class SpreadsheetProcessor(
         firstRowNum: Int,
         lastRowNum: Int,
         sheet: Sheet
-    ): FileProcessState {
+    ): SpreadsheetProcessState {
         val data = HashMap<String, StringBuilder>()
         for (rowNo in (firstRowNum + 1)..lastRowNum) {
             val row = sheet.getRow(rowNo) ?: break
@@ -109,6 +95,6 @@ class SpreadsheetProcessor(
         data.values.forEach {
             it.append(RESOURCE_SUFFIX)
         }
-        return FileProcessState.Success(data)
+        return SpreadsheetProcessState.Success(data)
     }
 }
