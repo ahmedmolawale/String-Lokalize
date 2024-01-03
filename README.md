@@ -58,6 +58,10 @@ sample string.xml file is included
 in the project at `test/strings.xml`
 
 
+## Screenshot
+<img src="images/plugin.png" width=400/>
+
+
 
 
 
