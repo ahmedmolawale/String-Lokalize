@@ -31,7 +31,7 @@ Coming soon...
 
 You have the option to clone the repository and execute the command `./gradlew buildPlugin` to produce
 the
-plugin. The resulting zip file can be found in the `build/distributions directory`. Subsequently, go to the plugin
+plugin. The resulting zip file can be found in the `build/distributions` directory. Subsequently, go to the plugin
 section
 within Android Studio under Preferences/Settings. Click on the settings icon, then proceed to "Install Plugin from Disk"
 to complete the installation process.
@@ -43,7 +43,8 @@ to complete the installation process.
 The plugin is compatible with both xls and xlsx spreadsheet formats. For proper functionality, ensure that the
 spreadsheet contains a minimum of two columns. The first column header must be labeled as key, while the subsequent
 columns should represent valid language locale codes (e.g., en, pt, tr, etc.). A sample spreadsheet template is included
-in the project at `test/lokalize-template.xlsx`.
+in the project at `test/lokalize-template.xlsx`. See screenshot below:
+<img src="images/template.png" width=400/>
 
 Upon selecting your spreadsheet file, proceed to specify the directory where you desire the string resources to be
 generated. While the ideal location is within the res folder of your `app` module, you have the flexibility to choose
@@ -57,8 +58,8 @@ specify the directory where you wish the resulting spreadsheet to be generated. 
 sample string.xml file is included
 in the project at `test/strings.xml`
 
-
 ## Screenshot
+
 <img src="images/plugin.png" width=400/>
 
 
