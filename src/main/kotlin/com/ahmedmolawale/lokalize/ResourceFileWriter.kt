@@ -1,5 +1,6 @@
 package com.ahmedmolawale.lokalize
 
+import com.ahmedmolawale.lokalize.states.StringResourceState
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.Sheet
@@ -23,28 +24,54 @@ class ResourceFileWriter(
     private val locationToSaveOutput: String
 ) {
 
-    fun createStringResources(data: Map<String, StringBuilder>): Int {
-        var processed = 0
-        for ((key, value) in data.entries) {
+    private val alreadyExistingLanguages = mutableListOf<String>()
+    private val validLanguages = mutableListOf<String>()
+    private lateinit var languageData: Map<String, StringBuilder>
+
+    fun checkStringResources(data: Map<String, StringBuilder>): StringResourceState {
+        languageData = data
+        for ((key, _) in data.entries) {
             val path = Paths.get(locationToSaveOutput, "$VALUE_DIR_PREFIX-$key", STRING_FILE_NAME)
             val stringFile = File(path.toString())
             if (stringFile.exists()) { //we have to deal with this case separately.
-                continue
+                alreadyExistingLanguages.add(key)
+            } else {
+                validLanguages.add(key)
             }
+        }
+        if (alreadyExistingLanguages.isNotEmpty()) {
+            val message = "The string resource of the following languages:" +
+                    "\n ${alreadyExistingLanguages.joinToString()}" +
+                    "\n already exist in the directory. Do you want to rewrite or skip them?"
+            return StringResourceState.AlreadyExist(message)
+        }
+        return createStringResource()
+    }
 
+    fun createStringResource(rewrite: Boolean = true): StringResourceState {
+        var processed = 0
+        for ((key, value) in languageData.entries) {
+            if (!rewrite && alreadyExistingLanguages.contains(key)) continue
             //check if the directory exist
             val directoryPath = Paths.get(locationToSaveOutput, "$VALUE_DIR_PREFIX-$key")
             val directory = File(directoryPath.toString())
             if (!directory.exists()) {
                 directory.mkdir()
             }
-            //now, we can create the file
+
+            val filePath = Paths.get(locationToSaveOutput, "$VALUE_DIR_PREFIX-$key", STRING_FILE_NAME)
+            val stringFile = File(filePath.toString())
+            //now, we can create the file if it does not exist
             stringFile.createNewFile()
             if (writeToFile(stringFile, value.toString())) {
                 processed++
             }
         }
-        return processed
+        return if (processed == 0) {
+            StringResourceState.Success("No language processed.")
+        } else {
+            StringResourceState.Success("$processed out of ${languageData.keys.size} languages has been processed successfully.")
+        }
     }
 
     fun createSpreadsheet(data: Map<String, String>): String {

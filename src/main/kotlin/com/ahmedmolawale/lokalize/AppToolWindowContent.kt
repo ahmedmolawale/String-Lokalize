@@ -2,12 +2,11 @@ package com.ahmedmolawale.lokalize
 
 import com.ahmedmolawale.lokalize.components.LineComponent
 import com.ahmedmolawale.lokalize.states.SpreadsheetProcessState
+import com.ahmedmolawale.lokalize.states.StringResourceState
 import com.ahmedmolawale.lokalize.states.XMLProcessState
 import com.ahmedmolawale.lokalize.utils.FileHelper
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
-import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.TextBrowseFolderListener
-import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.openapi.ui.*
 import java.awt.Component
 import java.awt.Dimension
 import javax.swing.*
@@ -161,13 +160,11 @@ class AppToolWindowContent {
     private fun displayState(state: SpreadsheetProcessState) {
         when (state) {
             is SpreadsheetProcessState.Success -> {
-                val processed = ResourceFileWriter(locationToSaveOutput).createStringResources(state.data)
-                Messages.showMessageDialog(
-                    "$processed out of ${state.data.keys.count()} languages has been processed successfully.",
-                    "Success",
-                    Messages.getInformationIcon()
-                )
+                val resourceWriter = ResourceFileWriter(locationToSaveOutput)
+                val stringProcess = resourceWriter.checkStringResources(state.data)
+                showStringProcessState(stringProcess, resourceWriter)
             }
+
             is SpreadsheetProcessState.Error -> {
                 Messages.showMessageDialog(state.message, "Information", Messages.getErrorIcon())
             }
@@ -184,8 +181,29 @@ class AppToolWindowContent {
                     Messages.getInformationIcon()
                 )
             }
+
             is XMLProcessState.Error -> {
                 Messages.showMessageDialog(state.message, "Information", Messages.getErrorIcon())
+            }
+        }
+    }
+
+    private fun showStringProcessState(state: StringResourceState) {
+        when (state) {
+            is StringResourceState.AlreadyExist -> {
+                val result = Messages.showYesNoDialog(
+                    state.message,
+                    "Confirmation",
+                    "Rewrite",
+                    "Skip",
+                    Messages.getInformationIcon()
+                )
+                //skip is 1
+                println("Result is $result")
+            }
+
+            is StringResourceState.Success -> {
+
             }
         }
     }
