@@ -188,7 +188,7 @@ class AppToolWindowContent {
         }
     }
 
-    private fun showStringProcessState(state: StringResourceState) {
+    private fun showStringProcessState(state: StringResourceState, resourceFileWriter: ResourceFileWriter) {
         when (state) {
             is StringResourceState.AlreadyExist -> {
                 val result = Messages.showYesNoDialog(
@@ -198,12 +198,12 @@ class AppToolWindowContent {
                     "Skip",
                     Messages.getInformationIcon()
                 )
-                //skip is 1
-                println("Result is $result")
+                val newState = resourceFileWriter.createStringResource(result == 0)
+                showStringProcessState(newState, resourceFileWriter)
             }
 
             is StringResourceState.Success -> {
-
+                Messages.showMessageDialog(state.message, "Information", Messages.getInformationIcon())
             }
         }
     }
